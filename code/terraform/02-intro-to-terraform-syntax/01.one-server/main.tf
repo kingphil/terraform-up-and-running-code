@@ -2,19 +2,23 @@ terraform {
   required_version = ">= 0.12, < 0.13"
 }
 
-provider "aws" {
-  region = "us-east-2"
+provider "kubernetes" {}
 
-  # Allow any 2.x version of the AWS provider
-  version = "~> 2.0"
-}
+## pek: translate later; maybe expose SSH
 
-resource "aws_instance" "example" {
-  ami           = "ami-0c55b159cbfafe1f0"
-  instance_type = "t2.micro"
+# provider "aws" {
+#   region = "us-east-2"
 
-  tags = {
-    Name = "terraform-example"
-  }
-}
+#   # Allow any 2.x version of the AWS provider
+#   version = "~> 2.0"
+# }
+
+# resource "aws_instance" "example" {
+#   ami           = "ami-0c55b159cbfafe1f0"
+#   instance_type = "t2.micro"
+
+#   tags = {
+#     Name = "terraform-example"
+#   }
+# }
 
