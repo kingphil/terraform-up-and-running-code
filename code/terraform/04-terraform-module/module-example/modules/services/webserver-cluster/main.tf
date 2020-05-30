@@ -2,8 +2,6 @@ terraform {
   required_version = ">= 0.12, < 0.13"
 }
 
-provider "kubernetes" {}
-
 resource "kubernetes_deployment" "nginx" {
   metadata {
     name = "nginx"
@@ -13,7 +11,7 @@ resource "kubernetes_deployment" "nginx" {
   }
 
   spec {
-    replicas = 2
+    replicas = var.replica_size
     selector {
       match_labels = {
         App = "nginx"
@@ -29,11 +27,11 @@ resource "kubernetes_deployment" "nginx" {
 
       spec {
         container {
-          image = "nginx:1.18.0"
+          image = "nginx:${var.image_version}"
           name  = "example"
 
           port {
-            container_port = 80
+            container_port = local.http_port
           }
 
           ## somewhat equivalent to AMI flavor
@@ -62,8 +60,8 @@ resource "kubernetes_service" "nginx" {
       App = kubernetes_deployment.nginx.metadata[0].labels.App
     }
     port {
-      port        = 80
-      target_port = 80
+      port        = local.http_port
+      target_port = local.http_port
       #node_port = 32001
     }
 
@@ -87,7 +85,7 @@ resource "kubernetes_ingress" "nginx" {
     ## pek: not sure what this does, and it doesn't seem to be needed
     # backend {
     #   service_name = "nginx"
-    #   service_port = 80
+    #   service_port = local.http_port
     # }
 
     rule {
@@ -99,7 +97,7 @@ resource "kubernetes_ingress" "nginx" {
 
           backend {
             service_name = "nginx"
-            service_port = 80
+            service_port = local.http_port
           }
         }
       }
@@ -113,4 +111,8 @@ output "node_port" {
 
 output "URL" {
   value = "${kubernetes_ingress.nginx.spec[0].rule[0].host}${kubernetes_ingress.nginx.spec[0].rule[0].http[0].path[0].path}"
+}
+
+locals {
+  http_port = 80
 }
